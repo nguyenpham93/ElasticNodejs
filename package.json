@@ -1,0 +1,11 @@
+{
+  "name": "elasticNodejs",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "bluevn",
+  "license": "MIT",
+  "dependencies": {
+    "elasticsearch": "^13.0.0-rc2",
+    "get-json": "^0.0.3"
+  }
+}
