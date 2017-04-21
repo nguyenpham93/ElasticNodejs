@@ -218,3 +218,35 @@ Ví dụ :
 + "index" : gồm 2 giá trị "analyzed" và "not_analyzed"
   * "analyzed" (default) : mặc định dùng analyzer "standard"
   * "not_analyzer " : không analyse mà lưu và tìm chính xác giá trị
+
+
+#### Sau khi cấu hình xong thì chúng ta có thể search được hiệu quả hơn 
+```
+elas.search ({
+        index : "book_store",
+        type  : "all_book",
+        body  : {
+            query : {
+                match: { 
+                    'name' : {
+                        'query'    : "sher",
+                        'operator' :  "AND"
+                    } 
+                }
+            }
+        }
+    }, (err, res, status) => {
+        let books = res.hits.hits;
+        console.log ("Found : ", books.length);
+        books.forEach ( (book) => {
+            consold.log (book);
+        });
+    });
+```
+- ElasticSearch 
+=> Kết quả: book với "name" = "SherkLock Homels 2017"
+- Đối với analyzer "standard" thì kết quả trả về sẽ là 0, vì standard search theo cụm từ (Không có book nào có "name" là "sher") 
+
+- Đối với analyzer custom , sử dụng "filter" : "nGram" thì ES sẽ tách một cụm từ thành những cụm từ nhỏ hơn trong đó, ví dụ : "SherkLock" => "s", "sh", "she", "sher" .... 
+
+Link : https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-ngram-tokenfilter.html
