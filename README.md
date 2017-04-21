@@ -153,15 +153,18 @@ elas.search ({
  });
 ```
 ##### Custom analyzer gồm 3 parameters chính (chính là 3 bộ lọc theo tuần tự) : 
-1. "char_filter" : xử lý input ban đầu cho hợp lệ (ví dụ : xoá tất cả tag "html") trước khi chuyển qua "tokenizer" 
+1. "char_filter"
+  * Xử lý input ban đầu cho hợp lệ (ví dụ : xoá tất cả tag "html") trước khi chuyển qua "tokenizer" 
   * Các "Character Filters" thông dụng :
     * "html_strip" : xoá các ký tự html và decode html like "&amp" thành "&"
-2. "tokenizer" : Dựa vào input trả về từ "char-filter" , tách input string thành mảng chứa các terms 
+2. "tokenizer" 
+  * Dựa vào input trả về từ "char-filter" , tách input string thành mảng chứa các terms 
   * Ví dụ : "Sport is good" => [ "Sport" , "is" , "good"]
   * Các tokenizer thông dụng : 
     * "standard" : mặc định
     * "whitespace" : tách các terms trong input string khi thấy "space" ký tự
-3. "filter" : xử lý các terms trả về từ "tokenizer"
+3. "filter"
+  * Xử lý các terms trả về từ "tokenizer"
   * Các filter thông dụng :
     * "lowercase" : đổi thành chữ thường hết 
     * "stop" : khi search bỏ qua những từ thông dụng như "is", "the", "are" ..
