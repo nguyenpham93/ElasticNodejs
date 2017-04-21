@@ -1,18 +1,17 @@
 # ElasticNodejs
 
 ## Khái niệm ElasticSearch
-- ES là một Document Oriented Database, nó dùng các khái niệm khác với những database thông thường
-  * Ví dụ : 
+- ES là một Document Oriented Database, nó dùng các khái niệm khác với những database thông thường 
     * Index : chính là database
     * Shards : là một tập hợp các document của 1 index, một Index chia ra thành nhiều Shards để truy xuất , tìm kiếm nhanh hơn
     * Type : table
     * Document : là các record, hiển thị theo JSON format 
  #### Ưu điểm và nhược điểm :
-  * Ưu điểm :
+  1. Ưu điểm :
     * ES có tốc độ thực thi rất tốt do có khả năng truy vấn song song (parallel) sử dụng các shards.
     * Support nhiều cơ chế searching 
     * Sắp xếp kết quả truy vấn theo Relevance dựa vào _score
-  * Nhược điểm :
+  1. Nhược điểm :
     * Không thích hợp với môi trường database thường xuyên thay đổi dữ liệu
     * Không hỗ trợ Transaction => nên dùng song song với các database truyền thống khác
  ## Cài đặt
@@ -139,26 +138,80 @@ elas.search ({
 * Một Index gồm 2 phần chính là :
   * "setting" : nơi để custom analyzer
   * "mapping" : mapping cấu trúc các document trong type của index, (setting "analyzer", "data type" cho fields )
-  ```
-  elas.indices.create ({
-			index : index,
-			body  : {
-				"settings" : {your custom analyzer},
-				"mappings" : {your mapping fields}
-			}
-		}, (err, result, status) => {
-			cb (null, `Index ${result} was created`);
-		});
-  ```
-  * Custom analyzer gồm những parameters chính : 
-    * char_filter : thêm, sửa,xoá ký tự vào searching text để transform thành string hợp lệ trước khi chuyển qua "tokenizer" 
-      * Vi
-    * tokenizer : Dùng để tách 1 đoạn text thành một mảng các terms, 
-      * Ví dụ : "Sport is good" => [ "Sport" , "is" , "good"]
-      * Các tokenizer thông dụng : 
-        * "standard" : mặc định
-        * "whitespace" : tách các term trong text khi thấy "space" ký tự
-  ```
   
-  ```
+ ```
+  elas.indices.create({
+     index: index,
+     body: {
+         "settings": {
+             your custom analyzer
+         },
+         "mappings": {
+             your mapping fields
+         }
+     }
+ });
+```
+##### Custom analyzer gồm 3 parameters chính (chính là 3 bộ lọc theo tuần tự) : 
+* "char_filter" : xử lý input ban đầu cho hợp lệ (ví dụ : xoá tất cả tag "html") trước khi chuyển qua "tokenizer" 
+  * Các "Character Filters" thông dụng :
+    * "html_strip" : xoá các ký tự html và decode html like "&amp" thành "&"
+* "tokenizer" : Dựa vào input trả về từ "char-filter" , tách input string thành mảng chứa các terms 
+  * Ví dụ : "Sport is good" => [ "Sport" , "is" , "good"]
+  * Các tokenizer thông dụng : 
+    * "standard" : mặc định
+    * "whitespace" : tách các terms trong input string khi thấy "space" ký tự
+* "filter" : xử lý các terms trả về từ "tokenizer"
+  * Các filter thông dụng :
+    * "lowercase" : đổi thành chữ thường hết 
+    * "stop" : khi search bỏ qua những từ thông dụng như "is", "the", "are" ..
+Ví dụ :
+```
+"analysis": {
+            "filter": {
+                "my_filter": {
+                    "type": "nGram",
+                    "min_gram": 2,
+                    "max_gram": 15,
+                    "token_chars": ["letter", "digit", "punctuation", "symbol"]
+                }
+            },
+            "analyzer": {
+                "my_analyzer": {
+                    "type": "custom",
+                    "char_filter": ["html_strip"],
+                    "tokenizer": "whitespace",
+                    "filter": ['lowercase', "stop", "my_filter"]
+                }
+            }
+        }
+```
  
+* Sau khi set Analysis xong thì mapping fields
+
+```
+"book_all": {
+            "include_in_all": false,
+            "properties": {
+                "name": {
+                    "type": "text",
+                    "include_in_all": true,
+                    "analyzer": "my_analyzer",
+                    "search_analyzer": "whitespace"
+                },
+                "author": {
+                    "type": "text",
+                    "index" : "not_analyzed",
+                    "include_in_all": true,
+                    "search_analyzer": "whitespace"
+                }
+            }
+        }
+```
+- "type" : kiểu dữ liệu của field (text, date, number)
+- "include_in_all" : do đã set include_in_all : false , nên chỉ những field có "include_in_all" : true mới có thể searchable
+- "analyzer" : analyzer dùng cho indexing time (khi lưu data nên lưu theo kiểu nào, mặc định là "standard")
+- "search_analyzer" : analyzer dùng cho search time 
+- "index" : gồm 2 giá trị "analyzed" và "not_analyzed"
+  * "analyzed" (default) : mặc định dùng analyzer "standard"
+  * "not_analyzer " : không analyse mà lưu và tìm chính xác giá trị
