@@ -11,7 +11,7 @@
     * ES có tốc độ thực thi rất tốt do có khả năng truy vấn song song (parallel) sử dụng các shards.
     * Support nhiều cơ chế searching 
     * Sắp xếp kết quả truy vấn theo Relevance dựa vào _score
-  1. Nhược điểm :
+  2. Nhược điểm :
     * Không thích hợp với môi trường database thường xuyên thay đổi dữ liệu
     * Không hỗ trợ Transaction => nên dùng song song với các database truyền thống khác
  ## Cài đặt
@@ -153,15 +153,15 @@ elas.search ({
  });
 ```
 ##### Custom analyzer gồm 3 parameters chính (chính là 3 bộ lọc theo tuần tự) : 
-* "char_filter" : xử lý input ban đầu cho hợp lệ (ví dụ : xoá tất cả tag "html") trước khi chuyển qua "tokenizer" 
+1. "char_filter" : xử lý input ban đầu cho hợp lệ (ví dụ : xoá tất cả tag "html") trước khi chuyển qua "tokenizer" 
   * Các "Character Filters" thông dụng :
     * "html_strip" : xoá các ký tự html và decode html like "&amp" thành "&"
-* "tokenizer" : Dựa vào input trả về từ "char-filter" , tách input string thành mảng chứa các terms 
+2. "tokenizer" : Dựa vào input trả về từ "char-filter" , tách input string thành mảng chứa các terms 
   * Ví dụ : "Sport is good" => [ "Sport" , "is" , "good"]
   * Các tokenizer thông dụng : 
     * "standard" : mặc định
     * "whitespace" : tách các terms trong input string khi thấy "space" ký tự
-* "filter" : xử lý các terms trả về từ "tokenizer"
+3. "filter" : xử lý các terms trả về từ "tokenizer"
   * Các filter thông dụng :
     * "lowercase" : đổi thành chữ thường hết 
     * "stop" : khi search bỏ qua những từ thông dụng như "is", "the", "are" ..
@@ -208,10 +208,10 @@ Ví dụ :
             }
         }
 ```
-- "type" : kiểu dữ liệu của field (text, date, number)
-- "include_in_all" : do đã set include_in_all : false , nên chỉ những field có "include_in_all" : true mới có thể searchable
-- "analyzer" : analyzer dùng cho indexing time (khi lưu data nên lưu theo kiểu nào, mặc định là "standard")
-- "search_analyzer" : analyzer dùng cho search time 
-- "index" : gồm 2 giá trị "analyzed" và "not_analyzed"
++ "type" : kiểu dữ liệu của field (text, date, number)
++ "include_in_all" : do đã set include_in_all : false , nên chỉ những field có "include_in_all" : true mới có thể searchable
++ "analyzer" : analyzer dùng cho indexing time (khi lưu data nên lưu theo kiểu nào, mặc định là "standard")
++ "search_analyzer" : analyzer dùng cho search time 
++ "index" : gồm 2 giá trị "analyzed" và "not_analyzed"
   * "analyzed" (default) : mặc định dùng analyzer "standard"
   * "not_analyzer " : không analyse mà lưu và tìm chính xác giá trị
